@@ -1,0 +1,48 @@
+/*
+-----------------------------------------------
+Daniel Bulli
+http://www.nuff-respec.com/technology/javascript-and-css-magnets
+----------------------------------------------- */
+
+.magnet 
+{
+	/** these are important to not conflict with a:link **/
+	text-decoration: none !important;
+	color: #2a2a2c !important;
+	
+	position: relative;	
+	padding: 0 0 0 10px;
+	margin:	0 1em;
+	
+	height: 30px;
+	float: left;
+	color: #000;	
+	background:	#fff url(../i/magnet-bg.gif) top left no-repeat;
+	
+	font-size:	10px;
+	font-weight:	 bold;
+	text-decoration: none;
+	letter-spacing: 1px;	
+	overflow: hidden;
+
+}
+
+.magnet span
+{
+	padding: 3px 10px 0 0;
+	display: block;
+	height: 26px;
+	background: #fff url(../i/magnet-bg.gif) top right no-repeat;
+}
+
+.magnet:hover
+{
+	background-position:0 -30px;
+	
+	/** important to not conflict with a:link **/
+	color:#fff !important;
+}
+.magnet:hover span
+{
+	background-position:100% -30px;
+}

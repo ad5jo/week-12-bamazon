@@ -1,0 +1,6 @@
+week-12-bamazon
+heroku create
+git push heroku master
+
+
+
