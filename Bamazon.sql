@@ -8,3 +8,6 @@ CREATE TABLE products (
     stock_quantity INTEGER(11) NULL
 );
 drop table products;
+
+SELECT stock_quantity FROM products WHERE item_id = 1;
+SELECT * FROM products;

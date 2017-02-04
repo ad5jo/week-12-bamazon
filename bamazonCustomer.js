@@ -1,7 +1,7 @@
 var mysql = require("mysql");
 const prompt = require("prompt");
 var inquirer = require("inquirer");
-
+var s_g_id = "1";
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -45,109 +45,37 @@ function inquireMain() {
     });
 }
 
-// function inquireItem() {
-//     inquirer.prompt([
-//         {
-//             type: "input",
-//             message: "Enter your item for bid: ",
-//             name: "item"
-//         },
-//         {
-//             type: "input",
-//             message: "Enter your item's starting bid: ",
-//             name: "bid"
-//         }
-//     ]).then(function (user) {
-
-//         connection.query("INSERT INTO item SET ?", {
-//             item_name: user.item,
-//             start_price: user.bid
-//         }, function (err, res) { });
-//         inquireMain();
-//     });
-// }
-
-
-// UPDATE Customers
-// SET City = 'Hamburg'
-// WHERE CustomerID = 1;
-
-// function inquire_purchase() {
-//     connection.query("UPDATE products SET quantity = ",
-//         function (err, res) {
-//             for (var i = 0; i < res.length; i++) {
-//                 //console.log(res[i].item_name);
-//                 items.push(res[i].item_name);
-
-//             }
-//             inquirer.prompt([
-//                 {
-//                     type: "list",
-//                     message: "Select an item to bid",
-//                     choices: items,
-//                     name: "selected"
-//                 },
-//             ]).then(function (user) {
-//                 console.log(user.selected);
-//             });
-//         });
-// }
 
 function inquire_purchase() {
-    inquirer.prompt([
+    inquirer.prompt([// A
         {
             type: "input",
             message: "item number",
             name: "id"
         },
         ])
-        .then(function (user) {
+        .then(function (user) { // B
             console.log(user.id);
-            }
-        );
-    inquirer.prompt([
-        {
-            type: "input",
-            message: "How many",
-            name: "qty"
-        },
-        ])
-        .then(function (user) {
-            console.log(user.qty);
-            }
-        );
+            s_g_id = user.id;
+             console.log("s_g_id: " + s_g_id);
+                inquirer.prompt([ //C
+                {
+                    type: "input",
+                    message: "How many",
+                    name: "qty"
+                },
+                ])
 
-    var s_temp = "SELECT stock_quantity FROM products WHERE item_id = " + user.id;
-    var s_count_query = '\"s_temp\"';
-    connection.query(s_count_query,function (err, res) {
-            // do somethin
-            var i_temp_qty = res.stock_quantity;
-            if (res.stock_quantity >= user.qty)
-            {
-                i_temp_qty = i_temp_qty - user.qty;
-            }
-            else
-            {
-                console.log("-----------------------------------------");
-                console.log("Sorry, Can't complete you order. Not enough inventory. Try ordering fewer.");
-                console.log("-----------------------------------------");
-                inquireMain();
-            }
-        })
-        .then ( // then A
-            //var 
-            s_temp = "UPDATE products SET stock_quantity = " + i_temp_qty;
-            s_temp = s_temp + " WHERE item_id = " + user.id;
-            var s_ud_query = '\"s_temp\"';
-            connection.query(s_ud_query,function (err, res) {
-                // do somethin
-                console.log("success");
-                inquireMain();
-                console.log("-----------------------------------------");
-                console.log("\n");
-            });
-        ); // then A
-
+                .then(function (user) { // D
+                    console.log(user.qty);
+                    
+                    //console.log("you cost here");
+                    do_purchase(user.qty,"cost")
+                    inquireMain();
+                    } // D
+                );  // C
+            } // B 
+        ); // A
 }
 
 
@@ -157,17 +85,64 @@ function inquireList() {
         function (err, res) {
             console.log("\n-----------------------------------------");
             console.log(" -inventory- ");
-            console.log("");
+            console.log("Item ID" + "\t" +"Product" + "\t" +"Item Cost" + "\t" +"Available" );
             for (var i = 0; i < res.length; i++) {
-                console.log(res[i].item_id + "\t" + res[i].product_name);
+                console.log(res[i].item_id + "\t" + res[i].product_name+ "\t" + res[i].price + "\t" + res[i].stock_quantity);
                 //console.log("\t" );
                 //console.log(res[i].product_name );
                 items.push(res[i].product_name);
             }
             console.log("-----------------------------------------");
             console.log("\n");
+            inquireMain();
         });
 
 }
+
+function do_purchase(qty,cost){
+    //
+    console.log("Entered do_purchase\n");
+    console.log("s_g_id: " + s_g_id);
+    var s_temp = "SELECT stock_quantity FROM products WHERE item_id = " + s_g_id;
+    //var s_temp = "SELECT * FROM products"
+    var s_count_query = s_temp; //  '\"s_temp\"';
+    console.log("151 qty: " + qty);
+    connection.query(s_count_query,function (err, res) {
+            // do somethin
+            var i_temp_qty = res[0].stock_quantity;
+            console.log("155 qty: " + qty);
+            console.log("156 res.stock_quantity: " + res[0].stock_quantity);
+            if (res[0].stock_quantity >= qty)
+            {
+                i_temp_qty = i_temp_qty - qty;
+                console.log("-----------------------------------------");
+                console.log("Done. Thank you for the order.");
+                //console.log("Your cost is: " + cost);
+                console.log("-----------------------------------------");
+                inquireMain();
+            }
+            else
+            {
+                console.log("-----------------------------------------");
+                console.log("Sorry, Can't complete you order. Not enough inventory. Try ordering fewer.");
+                console.log("-----------------------------------------");
+                inquireMain();
+            }
+        }) // end of query
+    // then A
+        .then ( 
+            // var s_temp_f = "UPDATE products SET stock_quantity = " + i_temp_qty;
+            // s_temp_f = s_temp_f + " WHERE item_id = " + user.id;
+            // var s_ud_query = '\"s_temp\"';
+            // connection.query(s_ud_query,function (err, res) {
+            //     // do somethin
+            //console.log("178 success");
+            //inquireMain();
+            // });
+        );
+    // then A
+}
+
+
 
 connectDB();
