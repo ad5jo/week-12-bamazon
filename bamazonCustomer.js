@@ -2,6 +2,9 @@ var mysql = require("mysql");
 const prompt = require("prompt");
 var inquirer = require("inquirer");
 var s_g_id = "1";
+var i_g_qty = 0;
+var i_g_cost = 0;
+
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -15,6 +18,7 @@ function connectDB() {
     connection.connect(function (err) {
         if (err) { throw err; }
         console.log("connected as id " + connection.threadId);
+        inquireList();
         inquireMain();
     });
 }
@@ -55,9 +59,9 @@ function inquire_purchase() {
         },
         ])
         .then(function (user) { // B
-            console.log(user.id);
+            //console.log(user.id);
             s_g_id = user.id;
-             console.log("s_g_id: " + s_g_id);
+             //console.log("s_g_id: " + s_g_id);
                 inquirer.prompt([ //C
                 {
                     type: "input",
@@ -67,9 +71,7 @@ function inquire_purchase() {
                 ])
 
                 .then(function (user) { // D
-                    console.log(user.qty);
-                    
-                    //console.log("you cost here");
+                    //console.log(user.qty);
                     do_purchase(user.qty,"cost")
                     inquireMain();
                     } // D
@@ -99,32 +101,38 @@ function inquireList() {
 
 }
 
+
+// UPDATE products SET stock_quantity = 64 WHERE item_id = 1;
+function update_qty(){
+		var s_temp = i_g_qty.toString();
+        connection.query("UPDATE products SET stock_quantity = "+ s_temp + " WHERE item_id = "+ s_g_id ,
+         function (err, res) { });
+}
+
+
 function do_purchase(qty,cost){
-    //
-    console.log("Entered do_purchase\n");
-    console.log("s_g_id: " + s_g_id);
+    //console.log("Entered do_purchase\n");
     var s_temp = "SELECT stock_quantity FROM products WHERE item_id = " + s_g_id;
-    //var s_temp = "SELECT * FROM products"
     var s_count_query = s_temp; //  '\"s_temp\"';
-    console.log("151 qty: " + qty);
     connection.query(s_count_query,function (err, res) {
             // do somethin
-            var i_temp_qty = res[0].stock_quantity;
-            console.log("155 qty: " + qty);
-            console.log("156 res.stock_quantity: " + res[0].stock_quantity);
+            i_g_qty = res[0].stock_quantity;
+            i_g_qty = res[0].stock_quantity;
             if (res[0].stock_quantity >= qty)
             {
-                i_temp_qty = i_temp_qty - qty;
+                i_g_qty = i_g_qty - qty;
+                //console.log("i_g_qty: " + i_g_qty);
+            	//console.log("qty: " + qty);
                 console.log("-----------------------------------------");
                 console.log("Done. Thank you for the order.");
-                //console.log("Your cost is: " + cost);
                 console.log("-----------------------------------------");
+                update_qty();
                 inquireMain();
             }
             else
             {
                 console.log("-----------------------------------------");
-                console.log("Sorry, Can't complete you order. Not enough inventory. Try ordering fewer.");
+                console.log("Sorry, Can't complete you order. Not enough inventory. You may order " + i_g_qty.toString() +" or fewer.");
                 console.log("-----------------------------------------");
                 inquireMain();
             }
